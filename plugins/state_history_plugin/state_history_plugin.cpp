@@ -17,12 +17,14 @@
 using tcp    = boost::asio::ip::tcp;
 namespace ws = boost::beast::websocket;
 
-extern const char* const state_history_plugin_abi;
-
 namespace eosio {
 using namespace chain;
 using namespace state_history;
 using boost::signals2::scoped_connection;
+
+namespace ship_protocol {
+extern const char* const ship_abi;
+}
 
 static appbase::abstract_plugin& _state_history_plugin = app().register_plugin<state_history_plugin>();
 
@@ -97,7 +99,7 @@ struct state_history_plugin_impl : std::enable_shared_from_this<state_history_pl
          socket_stream->async_accept([self = shared_from_this()](boost::system::error_code ec) {
             self->callback(ec, "async_accept", [self] {
                self->start_read();
-               self->send(state_history_plugin_abi);
+               self->send(eosio::ship_protocol::ship_abi);
             });
          });
       }
