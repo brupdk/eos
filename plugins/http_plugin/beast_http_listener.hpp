@@ -114,7 +114,7 @@ namespace eosio {
                 // wrap around try catch to prevent non-zero exit code problem
                 try { 
                     auto self = this->shared_from_this();
-                    acceptor_.async_accept(socket_, [self](beast::error_code ec) {
+                    acceptor_.async_accept(asio::make_strand(*ioc_), [self](beast::error_code ec, socket_type socket) {
                             try {
                                 if(ec) {
                                     fail(ec, "accept");
@@ -122,10 +122,9 @@ namespace eosio {
                                 else {
                                     // Create the session object and run it
                                     std::make_shared<session_type>(
-                                        std::move(self->socket_),
+                                        std::move(socket),
                                         self->ctx_,
-                                        self->plugin_state_,
-                                        self->ioc_)->run_session();        
+                                        self->plugin_state_)->run_session();        
                                 }
 
                                 // Accept another connection
